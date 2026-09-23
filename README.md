@@ -77,3 +77,15 @@ Isso **não** equivale a validar todos os exercícios, uma suíte automatizada c
 ---
 
 **Licença:** esta revisão não acrescenta licença nem altera a atribuição dos materiais existentes.
+
+
+## Verificação automatizada do Exercicio4
+
+O workflow `Java verification` compila somente `Exercicio4/`, executa o exemplo e verifica coleção vazia, áreas fracionárias, soma polimórfica e independência da ordem para a maior área. Não cobre os projetos de `aula02/` nem acrescenta validação de dimensões negativas às classes.
+
+```sh
+javac -encoding UTF-8 -d out Exercicio4/*.java tests/GeometryChecks.java
+java -cp out GeometryChecks
+```
+
+Os novos checks passaram com OpenJDK 17 em Linux nesta sessão. O workflow configura Temurin 21; consulte a execução em Actions para seu resultado. Nenhuma licença ou fonte do exercício foi alterada.

@@ -1,0 +1,21 @@
+name: Java verification
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Compile isolated exercise
+        run: javac -encoding UTF-8 -d out Exercicio4/*.java tests/GeometryChecks.java
+      - name: Verify geometry behavior
+        run: java -cp out GeometryChecks
+      - name: Run example
+        run: java -cp out ProgramaDasFiguras
