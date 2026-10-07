@@ -6,11 +6,14 @@ Este espaço reúne exercícios e materiais de prática com Java, orientação a
 
 ## Por onde começar
 
+**Exercício 05 - refatoração:** [acesse a entrega completa em `Exercicio5/`](Exercicio5/), com respostas às questões 1 a 8, o projeto Locadora refatorado, justificativas e testes de regressão. A atividade foi validada em 07/10/2026.
+
 O exemplo mais direto para explorar neste repositório é o **gerenciador de figuras geométricas**, em [`Exercicio4/`](Exercicio4/). Ele usa uma interface comum para trabalhar com triângulos e losangos, calcular a soma das áreas e identificar a maior área cadastrada.
 
 | Caminho | Conteúdo | Como interpretar |
 | --- | --- | --- |
 | [`Exercicio4/`](Exercicio4/) | Interface, implementações de figuras e programa de demonstração | Exemplo de polimorfismo que pode ser compilado isoladamente. |
+| [`Exercicio5/`](Exercicio5/) | Respostas teóricas e refatoração de Locadora | Código original e refatorado, justificativas e 507 cenários de equivalência. |
 | [`aula02/`](aula02/) | Exercícios e estruturas de projetos de aula | Material acadêmico em diferentes estágios; não constitui um build único. |
 
 ## Exemplo: gerenciador de figuras
@@ -89,3 +92,4 @@ java -cp out GeometryChecks
 ```
 
 Os novos checks passaram com OpenJDK 17 em Linux nesta sessão. O workflow configura Temurin 21; consulte a execução em Actions para seu resultado. Nenhuma licença ou fonte do exercício foi alterada.
+
