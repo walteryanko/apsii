@@ -1,0 +1,51 @@
+# Abra com REST Client no VS Code, ou use os mesmos dados no Postman/Insomnia.
+# Ajuste os IDs conforme a saída de npm run db:seed e o POST abaixo.
+@baseUrl = http://localhost:3000
+@medicoId = 1
+@pacienteId = 1
+@consultaId = 1
+
+### Cadastrar (201)
+POST {{baseUrl}}/consultas
+Content-Type: application/json
+
+{
+  "data": "2026-10-09T14:00:00.000Z",
+  "turno": "TARDE",
+  "medicoId": {{medicoId}},
+  "pacienteId": {{pacienteId}}
+}
+
+### Listar (200)
+GET {{baseUrl}}/consultas
+
+### Buscar pelo ID (200)
+GET {{baseUrl}}/consultas/{{consultaId}}
+
+### Atualizar (200)
+PUT {{baseUrl}}/consultas/{{consultaId}}
+Content-Type: application/json
+
+{
+  "data": "2026-10-10T09:00:00-03:00",
+  "turno": "MANHA",
+  "medicoId": {{medicoId}},
+  "pacienteId": {{pacienteId}}
+}
+
+### Excluir (204, sem corpo)
+DELETE {{baseUrl}}/consultas/{{consultaId}}
+
+### Buscar após excluir (404)
+GET {{baseUrl}}/consultas/{{consultaId}}
+
+### Dados inválidos (400)
+POST {{baseUrl}}/consultas
+Content-Type: application/json
+
+{
+  "data": "2026-02-30",
+  "turno": "MADRUGADA",
+  "medicoId": {{medicoId}},
+  "pacienteId": {{pacienteId}}
+}

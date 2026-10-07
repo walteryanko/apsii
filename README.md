@@ -1,91 +1,134 @@
-# APS II — Java e orientação a objetos
+# Clínica Médica — CRUD de consultas
 
-**Repositório de estudos de Análise e Projeto de Sistemas II, no contexto do curso de ADS do UNIPÊ.**
+Atividade de **Programação Avançada para Web**: adicionar o CRUD da entidade `consulta (id, data, turno, medico, paciente)` ao projeto do professor Douglas Meneses.
 
-Este espaço reúne exercícios e materiais de prática com Java, orientação a objetos e organização de projetos. É um registro de aprendizagem, não uma biblioteca pronta para produção.
+**Aluno:** Walter Yanko de Aragão Brandão.
 
-## Por onde começar
+**Projeto de origem:** [douglasmeneses/clinicaMedica](https://github.com/douglasmeneses/clinicaMedica), commit `0820904ec400de820656aada3eab209f1213c7e9`. A base de pacientes e médicos foi preservada; esta entrega acrescenta consultas e os arquivos necessários para executar e verificar a atividade.
 
-O exemplo mais direto para explorar neste repositório é o **gerenciador de figuras geométricas**, em [`Exercicio4/`](Exercicio4/). Ele usa uma interface comum para trabalhar com triângulos e losangos, calcular a soma das áreas e identificar a maior área cadastrada.
+## O que foi implementado
 
-| Caminho | Conteúdo | Como interpretar |
-| --- | --- | --- |
-| [`Exercicio4/`](Exercicio4/) | Interface, implementações de figuras e programa de demonstração | Exemplo de polimorfismo que pode ser compilado isoladamente. |
-| [`aula02/`](aula02/) | Exercícios e estruturas de projetos de aula | Material acadêmico em diferentes estágios; não constitui um build único. |
+- CRUD completo de consultas: cadastrar, listar, buscar por ID, atualizar e excluir.
+- Relacionamentos com médico e paciente existentes por `medicoId` e `pacienteId`.
+- Respostas com os objetos `medico` e `paciente`, além das chaves estrangeiras.
+- Validação dos dados recebidos, conversão da data e respostas HTTP para entradas inválidas e registros inexistentes.
+- Migrações versionadas, dados fictícios de demonstração e testes de integração.
 
-## Exemplo: gerenciador de figuras
+A arquitetura segue o projeto original: **Routes → Controller → Service → Repository → Prisma → PostgreSQL**.
 
-```text
-FiguraGeometrica
-  ├── Triangulo
-  └── Losango
-          ↓
-GerenteDeFiguras
-          ↓
-ProgramaDasFiguras
+## Executar
+
+Requisitos: **Node.js 22.12 ou superior**, npm e Docker Compose para o banco PostgreSQL. Também é possível usar uma instalação própria do PostgreSQL, ajustando `DATABASE_URL`.
+
+```bash
+git clone --branch clinica-medica-consultas --single-branch https://github.com/walteryanko/apsii.git clinicaMedica
+cd clinicaMedica
+cp .env.example .env
+npm ci
+docker compose up -d
+npm run db:setup
+npm run dev
 ```
 
-- `FiguraGeometrica` define o contrato de cálculo de área e nome da figura.
-- `Triangulo` e `Losango` implementam esse contrato.
-- `GerenteDeFiguras` mantém uma lista de figuras e realiza operações sobre ela.
-- `ProgramaDasFiguras` demonstra o uso das classes.
+No Prompt de Comando do Windows, substitua `cp .env.example .env` por `copy .env.example .env`. No PowerShell, `cp` também funciona.
 
-O exemplo exercita interfaces, implementação de contratos, polimorfismo, composição e coleções com `List`/`ArrayList`.
+A API fica disponível em `http://localhost:3000`. Aguarde o PostgreSQL ficar pronto antes de executar `npm run db:setup`.
 
-## Executar o Exercicio4
+O comando `db:setup` gera o Prisma Client, aplica as migrações e cadastra um médico e um paciente fictícios. Seus IDs aparecem no terminal; em um banco novo, ambos serão `1`. Os dados de demonstração podem ser criados novamente sem duplicar os registros.
 
-Requisito: JDK disponível no terminal. O exemplo foi compilado e executado com **OpenJDK 21 em Linux** na revisão da documentação.
+Para executar a versão compilada:
 
-Na raiz do repositório:
-
-```sh
-javac -encoding UTF-8 -d out Exercicio4/FiguraGeometrica.java Exercicio4/Triangulo.java Exercicio4/Losango.java Exercicio4/GerenteDeFiguras.java Exercicio4/ProgramaDasFiguras.java
-java -cp out ProgramaDasFiguras
+```bash
+npm run build
+npm start
 ```
 
-Saída observada:
+### Banco já existente do projeto original
 
-```text
-Figuras cadastradas:
-Triângulo
-Losango
-Losango
-Área total: 35.0
-Maior área: 20.0
+As migrações incluídas também criam as tabelas originais de pacientes e médicos. Se o seu banco já tem essas tabelas criadas com `db push` e ainda não possui histórico de migrações, registre a migração inicial como aplicada antes de instalar consultas:
+
+```bash
+npx prisma migrate resolve --applied 20261007000100_init
+npm run db:setup
 ```
 
-O diretório `out/` é saída de compilação e não precisa ser incluído no controle de versão.
+Use esse procedimento apenas quando as tabelas de pacientes e médicos já correspondem ao schema original. Não é necessário para um banco novo. Nenhum comando de reset é necessário.
 
-## Organização dos estudos
+## Endpoints de consultas
 
-As pastas de `aula02/` preservam a organização utilizada durante as aulas, incluindo configurações de IDE e projetos separados. Para estudar um exercício, abra sua pasta específica; não presuma que todos os arquivos devem ser compilados juntos.
+| Método | Endpoint | Operação | Sucesso |
+|---|---|---|---|
+| POST | `/consultas` | Cadastrar | 201 |
+| GET | `/consultas` | Listar | 200 |
+| GET | `/consultas/:id` | Buscar por ID | 200 |
+| PUT | `/consultas/:id` | Atualizar todos os campos editáveis | 200 |
+| DELETE | `/consultas/:id` | Excluir | 204, sem corpo |
 
-Esta revisão acrescenta documentação sem mover pastas, renomear classes, completar exercícios ou alterar enunciados. Materiais e exemplos de aula preservam a autoria dos respectivos autores; o repositório não reivindica autoria exclusiva sobre todo o material didático.
+Os CRUDs originais de `/medicos` e `/pacientes` continuam disponíveis.
 
-## Escopo da validação
+### Exemplo de cadastro
 
-Em **23/09/2026**, as cinco fontes de `Exercicio4/` foram conferidas por hash contra o conteúdo do GitHub, compiladas e executadas localmente. A saída acima foi verificada.
+Envie um `POST http://localhost:3000/consultas` com `Content-Type: application/json`:
 
-Isso **não** equivale a validar todos os exercícios, uma suíte automatizada completa, casos extremos ou execução em Windows. As demais pastas foram mantidas como material de estudo.
-
-## Autor do repositório
-
-**Walter Yanko** — estudante de ADS, desenvolvedor de software e IA aplicada, com formação em Engenharia Química e produção musical.
-
-[Perfil no GitHub](https://github.com/walteryanko) · [Portfólio profissional](https://walter-yanko-portfolio.walteryanko.chatgpt.site/)
-
----
-
-**Licença:** esta revisão não acrescenta licença nem altera a atribuição dos materiais existentes.
-
-
-## Verificação automatizada do Exercicio4
-
-O workflow `Java verification` compila somente `Exercicio4/`, executa o exemplo e verifica coleção vazia, áreas fracionárias, soma polimórfica e independência da ordem para a maior área. Não cobre os projetos de `aula02/` nem acrescenta validação de dimensões negativas às classes.
-
-```sh
-javac -encoding UTF-8 -d out Exercicio4/*.java tests/GeometryChecks.java
-java -cp out GeometryChecks
+```json
+{
+  "data": "2026-10-09T14:00:00.000Z",
+  "turno": "TARDE",
+  "medicoId": 1,
+  "pacienteId": 1
+}
 ```
 
-Os novos checks passaram com OpenJDK 17 em Linux nesta sessão. O workflow configura Temurin 21; consulte a execução em Actions para seu resultado. Nenhuma licença ou fonte do exercício foi alterada.
+O ID da consulta é gerado automaticamente. O médico e o paciente precisam existir no banco. `medicoId` e `pacienteId` são as chaves estrangeiras; `medico` e `paciente` são os objetos relacionados devolvidos pela API.
+
+A data aceita `AAAA-MM-DD` ou uma data/hora ISO 8601 com fuso, por exemplo `2026-10-09T11:00:00-03:00`. Datas sem horário são armazenadas à meia-noite UTC. A resposta serializa a data em UTC; `14:00Z` corresponde a `11:00` em UTC−3.
+
+Os turnos são `MANHA`, `TARDE` e `NOITE`. A entrada `manhã` também é aceita e normalizada para `MANHA`.
+
+Para atualizar, envie o mesmo conjunto de quatro campos ao endpoint `PUT /consultas/:id`. O ID da consulta é obtido da URL.
+
+### Respostas de erro
+
+| Código | Situação |
+|---|---|
+| 400 | ID, data, turno, campos obrigatórios ou JSON inválidos |
+| 404 | Consulta, médico ou paciente informado não encontrado |
+| 409 | Tentativa de excluir médico ou paciente vinculado a consulta; CPF/CRM duplicado |
+| 500 | Falha interna inesperada |
+
+Excluir uma consulta mantém seu médico e paciente. Excluir médico ou paciente com consultas vinculadas é impedido pelas chaves estrangeiras.
+
+## Arquivos da atividade
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `prisma/schema.prisma` | Modelagem de Consulta e seus relacionamentos |
+| `prisma/migrations/` | Criação das tabelas, índices e chaves estrangeiras |
+| `src/types/consulta.ts` | DTO de consulta |
+| `src/schemas/consultaSchema.ts` | Validação de JSON e ID |
+| `src/repositories/consultaRepository.ts` | Operações de persistência com Prisma |
+| `src/services/consultaService.ts` | Regras e verificação de médico/paciente |
+| `src/controllers/consultaController.ts` | Requisições e respostas HTTP |
+| `src/routes/consultaRoutes.ts` | Registro dos cinco endpoints |
+| `src/app.ts` e `src/server.ts` | Configuração e inicialização da API |
+| `src/middlewares/errorHandler.ts` | Respostas de erro consistentes |
+| `requests/consultas.http` | Requisições para teste manual |
+| `tests/consultas.test.ts` | Testes de integração com HTTP e banco |
+
+## Verificar
+
+Com `DATABASE_URL` apontando para um PostgreSQL preparado pelas migrações:
+
+```bash
+npx prisma validate
+npm run build
+npm test
+```
+
+Os testes usam uma porta HTTP temporária, criam seus próprios médicos/pacientes e removem somente os registros criados na execução. Verificam os cinco endpoints, a persistência, os relacionamentos, a atualização, a exclusão e os principais casos de erro.
+
+O workflow em `.github/workflows/ci.yml` executa a validação, migrações, compilação e testes com PostgreSQL 16.
+
+## Créditos
+
+Base original de **Douglas Meneses**. Implementação da atividade na cópia de **Walter Yanko de Aragão Brandão**, com assistência de IA.
